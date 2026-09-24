@@ -1,0 +1,43 @@
+name: Build BibleProIA Android
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le projet
+        uses: actions/checkout@v4
+
+      - name: Installer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Installer Bubblewrap
+        run: npm install -g @bubblewrap/cli
+
+      - name: Construire l'application
+        run: |
+          bubblewrap init --manifest https://bibleproia.onrender.com/manifest.json
+          bubblewrap build --skipPwaValidation
+
+      - name: Publier APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BibleProIA-APK
+          path: |
+            app-release-signed.apk
+            app-release-unsigned.apk
+          if-no-files-found: warn
